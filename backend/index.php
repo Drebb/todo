@@ -5,6 +5,14 @@ header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Max-Age: 3600");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
+// Debug: Log all request info
+file_put_contents('php://stderr', "=========== REQUEST START ===========\n", FILE_APPEND);
+file_put_contents('php://stderr', "REQUEST_METHOD: " . $_SERVER['REQUEST_METHOD'] . "\n", FILE_APPEND);
+file_put_contents('php://stderr', "REQUEST_URI: " . $_SERVER['REQUEST_URI'] . "\n", FILE_APPEND);
+file_put_contents('php://stderr', "PATH_INFO: " . (isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : 'not set') . "\n", FILE_APPEND);
+file_put_contents('php://stderr', "CONTENT_TYPE: " . (isset($_SERVER['CONTENT_TYPE']) ? $_SERVER['CONTENT_TYPE'] : 'not set') . "\n", FILE_APPEND);
+file_put_contents('php://stderr', "=========== REQUEST END ===========\n", FILE_APPEND);
+
 // Handle preflight OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     http_response_code(200);
@@ -36,6 +44,15 @@ file_put_contents('php://stderr', "METHOD: $request_method, PATH: $path\n", FILE
 if ($path === '/health' || $path === '/backend/health') {
     http_response_code(200);
     echo json_encode(array("status" => "healthy", "message" => "Backend is running"));
+    exit();
+}
+
+// Check if the path is for todos endpoint (may have been rewritten from /api/todos by Nginx)
+$isTodosEndpoint = strpos($path, 'todos') !== false || $path === '/';
+
+if (!$isTodosEndpoint && $path !== '/health' && $path !== '/backend/health') {
+    http_response_code(404);
+    echo json_encode(array("message" => "Endpoint not found", "path" => $path));
     exit();
 }
 
