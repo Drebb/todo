@@ -1,9 +1,19 @@
-FROM nginx:alpine
+FROM php:8.2-fpm
 
-# Copy static files
-COPY . /usr/share/nginx/html/
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    && docker-php-ext-install pdo pdo_pgsql
 
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Set working directory
+WORKDIR /var/www/html
 
-EXPOSE 80 
+# Copy the application code
+COPY ./src /var/www/html
+
+# Set permissions
+RUN chown -R www-data:www-data /var/www/html
+
+EXPOSE 9000
+
+CMD ["php-fpm"] 
