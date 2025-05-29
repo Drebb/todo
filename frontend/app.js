@@ -1,6 +1,6 @@
 class TodoApp {
     constructor() {
-        this.apiUrl = '/api';
+        this.apiUrl = '/api/todos';
         this.todos = [];
         this.currentFilter = 'all';
         this.init();
@@ -36,7 +36,7 @@ class TodoApp {
 
     async checkServiceStatus() {
         try {
-            const response = await fetch(`${this.apiUrl}/health`);
+            const response = await fetch('/api/health');
             if (response.ok) {
                 this.updateServiceStatus('backend', true);
                 this.updateServiceStatus('db', true);
@@ -101,7 +101,7 @@ class TodoApp {
     async loadTodos() {
         try {
             this.showLoading(true);
-            const todos = await this.apiCall('/');
+            const todos = await this.apiCall('');
             this.todos = todos || [];
             this.renderTodos();
             this.updateStats();
@@ -125,7 +125,7 @@ class TodoApp {
         }
 
         try {
-            await this.apiCall('/', {
+            await this.apiCall('', {
                 method: 'POST',
                 body: JSON.stringify({
                     title,
@@ -147,7 +147,7 @@ class TodoApp {
         if (!todo) return;
 
         try {
-            await this.apiCall('/', {
+            await this.apiCall('', {
                 method: 'PUT',
                 body: JSON.stringify({
                     id: todo.id,
@@ -169,7 +169,7 @@ class TodoApp {
         }
 
         try {
-            await this.apiCall(`/?id=${id}`, {
+            await this.apiCall(`?id=${id}`, {
                 method: 'DELETE'
             });
 
@@ -193,7 +193,7 @@ class TodoApp {
 
         try {
             for (const todo of completedTodos) {
-                await this.apiCall(`/?id=${todo.id}`, {
+                await this.apiCall(`?id=${todo.id}`, {
                     method: 'DELETE'
                 });
             }

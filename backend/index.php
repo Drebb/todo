@@ -29,6 +29,9 @@ $request_method = $_SERVER["REQUEST_METHOD"];
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $path_parts = explode('/', trim($path, '/'));
 
+// Log method and path for debugging
+file_put_contents('php://stderr', "METHOD: $request_method, PATH: $path\n", FILE_APPEND);
+
 // Health check endpoint
 if ($path === '/health' || $path === '/backend/health') {
     http_response_code(200);
